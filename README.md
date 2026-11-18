@@ -191,3 +191,20 @@ pytest
 ```
 
 *(138/138 tests sẽ tự động chạy và xác minh hệ thống hoạt động chính xác)*.
+
+## Knowledge ingestion versioning
+
+Backend now keeps a source registry and immutable knowledge versions under
+`data/versions/`. A source identity is derived from the explicit `source_key`; it is
+not the content hash. Content fingerprints use NFC Unicode normalization, LF line
+endings, collapsed horizontal whitespace, and SHA-256. The same content and
+processing configuration is idempotent; changing parser/chunking configuration
+creates a traceable version.
+
+Ingestion creates a `ready` version but does not publish it. Use the knowledge API to
+activate or roll back a version. Retrieval loads only the atomically selected active
+version, while retired artifacts remain on disk for reproducibility. The catalog uses
+an exclusive lock and atomic replacement for single-node concurrency. Existing
+`data/processed/tfidf_index.json` remains readable as a legacy fallback until the
+first version is activated. A future multi-node deployment should move the catalog
+invariants to a transactional database.

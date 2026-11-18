@@ -1,7 +1,5 @@
 from pathlib import Path
 
-import pymupdf
-
 
 BASE_DIR = Path(__file__).resolve().parents[3]
 RAW_DIR = BASE_DIR / "data" / "raw"
@@ -28,6 +26,10 @@ PDF_PATH = get_default_pdf_path()
 
 
 def load_pdf(pdf_path: Path = PDF_PATH):
+    # Keep metadata/index utilities usable in lightweight environments that do not
+    # need PDF ingestion (for example catalog migrations and unit tests).
+    import pymupdf
+
     pages = []
 
     with pymupdf.open(pdf_path) as doc:

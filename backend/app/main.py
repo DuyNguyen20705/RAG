@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from app.routes.chat import router as chat_router
+from app.routes.knowledge import router as knowledge_router
 
 
 CORS_ORIGINS_ENV = "UNIGUIDE_CORS_ORIGINS"
@@ -40,6 +41,11 @@ app.include_router(
     chat_router,
     prefix="/api/v1/chat",
     tags=["Chat"],
+)
+app.include_router(
+    knowledge_router,
+    prefix="/api/v1/knowledge",
+    tags=["Knowledge"],
 )
 
 

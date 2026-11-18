@@ -15,12 +15,14 @@ from app.rag.from_scratch.pipeline import (
     build_index,
     chat_with_sources,
 )
+from app.rag.versioning import KnowledgeVersionStore
 from app.schemas.chat import ChatRequest, ChatResponse
 
 
 rag_chat = chat_with_sources
 RETRIEVAL_MODE_ENV = "UNIGUIDE_RETRIEVAL_MODE"
 API_TOKEN_ENV = "UNIGUIDE_API_TOKEN"
+version_store = KnowledgeVersionStore()
 
 
 def require_api_token(
@@ -54,6 +56,10 @@ router = APIRouter(dependencies=[Depends(require_api_token)])
 @lru_cache(maxsize=1)
 def get_rag_index():
     """Load the persisted index once, or build it if missing."""
+    active_version = version_store.active_version()
+    if active_version is not None:
+        _, index = version_store.load_active_index()
+        return index
     if not INDEX_PATH.exists():
         chunks, vectorizer, vectors = build_index()
         save_index(chunks, vectorizer, vectors)
